@@ -479,10 +479,10 @@ class acf_field_image_crop extends acf_field_image {
         // register acf scripts
         //wp_register_script('acf-input-image', "{$dir}../advanced-custom-fields-pro/js/input/image.js");
         wp_register_script('acf-input-image_crop', "{$dir}js/input.js", array('acf-input', 'imgareaselect'));
-        wp_register_script('croppie-library', "{$dir}Croppie/croppie.min.js");
+        wp_register_script('croppie-library', "{$dir}croppie/croppie.min.js");
 
         wp_register_style('acf-input-image_crop', "{$dir}css/input.css", array('acf-input'));
-        wp_register_style('croppie-style', "{$dir}Croppie/croppie.css");
+        wp_register_style('croppie-style', "{$dir}croppie/croppie.css");
 
         // scripts
         wp_enqueue_script(array(
