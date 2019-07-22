@@ -359,8 +359,9 @@ function initialize_field( $el ) {
             updateThumbnail($field, $field.find('.crop-stage img.crop-image').get(0), {y1: options.y1, y2: options.y2, x1: options.x1, x2: options.x2});
         }
 
-        var image = document.getElementById('crop-source');
-        var element = document.getElementById('croppie-frame');
+        var image = $field.find('#crop-source').get(0);
+        var element = $field.find('#croppie-frame').get(0);
+
         var width = element.offsetWidth;
         var height = options.minHeight / options.minWidth * width;
 
@@ -394,7 +395,7 @@ function initialize_field( $el ) {
         titleImage = document.createElement('h2');
         titleImage.innerHTML = acf._e('image_crop', 'image_explanation');
 
-        let sliderContainer = document.getElementsByClassName('cr-slider-wrap')[0];
+        let sliderContainer = $field.find('.cr-slider-wrap').get(0);
         sliderContainer.insertBefore(headerWrapper, sliderContainer.childNodes[0]);
         sliderContainer.insertBefore(titleImage, sliderContainer.childNodes[0]);
     }
