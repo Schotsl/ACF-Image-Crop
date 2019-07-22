@@ -73,6 +73,8 @@ class acf_field_image_crop extends acf_field_image {
         */
 
         $this->l10n = array(
+            'image_explanation'   => __( 'Sleep de afbeelding om de uitsnede te bepalen','acf-image_crop' ),
+            'slider_explanation'   => __( 'In- en uitzoomen','acf-image_crop' ),
             'width_should_be'   => __( 'Width should be at least: ','acf-image_crop' ),
             'height_should_be'  => __( 'Height should be at least: ','acf-image_crop' ),
             'selected_width'    => __( 'Selected image width: ','acf-image_crop' ),
@@ -352,8 +354,10 @@ class acf_field_image_crop extends acf_field_image {
                 <div class="crop-action">
                     <h4><?php _e('Crop the image','acf-image_crop'); ?></h4>
                 <?php if ($imageData->original_image ): ?>
-                    <img class="crop-image" src="<?php echo $imageData->original_image_url ?>" data-width="<?php echo $imageData->original_image_width ?>" data-height="<?php echo $imageData->original_image_height ?>" alt="">
+                    <img class="crop-image" id="crop-source" src="<?php echo $imageData->original_image_url ?>" data-width="<?php echo $imageData->original_image_width ?>" data-height="<?php echo $imageData->original_image_height ?>" alt="">
+                    <div id="croppie-frame"></div>
                 <?php endif ?>
+
                 </div>
                 <div class="crop-preview">
                     <h4><?php _e('Preview','acf-image_crop'); ?></h4>
@@ -475,12 +479,15 @@ class acf_field_image_crop extends acf_field_image {
         // register acf scripts
         //wp_register_script('acf-input-image', "{$dir}../advanced-custom-fields-pro/js/input/image.js");
         wp_register_script('acf-input-image_crop', "{$dir}js/input.js", array('acf-input', 'imgareaselect'));
+        wp_register_script('croppie-library', "{$dir}Croppie/croppie.min.js");
 
         wp_register_style('acf-input-image_crop', "{$dir}css/input.css", array('acf-input'));
+        wp_register_style('croppie-style', "{$dir}Croppie/croppie.css");
 
         // scripts
         wp_enqueue_script(array(
-                'acf-input-image_crop'
+                'acf-input-image_crop',
+                'croppie-library'
         ));
 
         //wp_localize_script( 'acf-input-image_crop', 'ajax', array('nonce' => wp_create_nonce('acf_nonce')) );
@@ -488,7 +495,8 @@ class acf_field_image_crop extends acf_field_image {
         // styles
         wp_enqueue_style(array(
                 'acf-input-image_crop',
-                'imgareaselect'
+                'imgareaselect',
+                'croppie-style'
         ));
 
 

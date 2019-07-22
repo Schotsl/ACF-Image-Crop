@@ -240,7 +240,8 @@ function initialize_field( $el ) {
                 $field.find('.acf-image-value').data('cropped', false);
                 $.post(ajaxurl, {action: 'acf_image_crop_get_image_size', image_id: originalImage}, function(data, textStatus, xhr) {
                     if($field.find('img.crop-image').length == 0){
-                        $field.find('.crop-action').append($('<img class="crop-image" src="#"/>'));
+                        $field.find('.crop-action').append($('<img class="crop-image" id="crop-source" src="#"/>'));
+                        $field.find('.crop-action').append($('<div id="croppie-frame"></div>'));
                     }
                     $field.find('img.crop-image').attr('src', data['url']);
                     $field.find('img.crop-image').data('width', data['width']);
@@ -308,7 +309,7 @@ function initialize_field( $el ) {
         // });
 
     }
-
+    var croppieObject;
     function initCrop($field){
         var $options = $field.find('.acf-image-uploader');
         var options = {
@@ -353,10 +354,49 @@ function initialize_field( $el ) {
         //options.y1 = (options.imageHeight - options.minHeight) / 2;
         if(!$field.hasClass('invalid')){
             toggleCropView($field);
-            $field.find('.crop-stage img.crop-image').imgAreaSelect(options);
+            // $field.find('.crop-stage img.crop-image').imgAreaSelect(options);
             updateCropData($field, $field.find('.crop-stage img.crop-image').get(0), {y1: options.y1, y2: options.y2, x1: options.x1, x2: options.x2});
             updateThumbnail($field, $field.find('.crop-stage img.crop-image').get(0), {y1: options.y1, y2: options.y2, x1: options.x1, x2: options.x2});
         }
+
+        var image = document.getElementById('crop-source');
+        var element = document.getElementById('croppie-frame');
+        var width = element.offsetWidth;
+        var height = options.minHeight / options.minWidth * width;
+
+        croppieObject = new Croppie(element, {
+            viewport: { width: width, height: height },
+            boundary: { width: width, height: height },
+            update: function () {
+                var info = croppieObject.get();
+                var top_left_x = info.points[0] / image.naturalWidth * options.imageWidth;
+                var top_left_y = info.points[1] / image.naturalWidth * options.imageWidth;
+                var bottom_right_x = info.points[2] / image.naturalWidth * options.imageWidth;
+                var bottom_right_y = info.points[3] / image.naturalWidth * options.imageWidth;
+
+                var selection = {y1: top_left_y, y2: bottom_right_y, x1: top_left_x, x2: bottom_right_x};
+                updateThumbnail($field, $field.find('.crop-stage img.crop-image').get(0), selection);
+                updateCropData($field, $field.find('.crop-stage img.crop-image').get(0), selection);
+            },
+            enableOrientation: true,
+            maxZoomedCropWidth: width * 0.15,
+        });
+        croppieObject.bind({
+            url: image.src,
+        });
+        jQuery(image).hide();
+
+        titleBar = document.createElement('b');
+        titleBar.innerHTML = acf._e('image_crop', 'slider_explanation');
+        headerWrapper = document.createElement('h2');
+        headerWrapper.appendChild(titleBar);
+
+        titleImage = document.createElement('h2');
+        titleImage.innerHTML = acf._e('image_crop', 'image_explanation');
+
+        let sliderContainer = document.getElementsByClassName('cr-slider-wrap')[0];
+        sliderContainer.insertBefore(headerWrapper, sliderContainer.childNodes[0]);
+        sliderContainer.insertBefore(titleImage, sliderContainer.childNodes[0]);
     }
 
     function updateCropData($field, img, selection){
@@ -435,6 +475,7 @@ function initialize_field( $el ) {
     }
 
     function cancelCrop($field){
+        croppieObject.destroy();
         toggleCropView($field);
         $field.find('.crop-stage img.crop-image').imgAreaSelect({remove:true});
     }
